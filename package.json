@@ -17,10 +17,10 @@
     "clsx": "^2.1.1",
     "firebase": "^12.11.0",
     "html-to-image": "^1.11.13",
-    "konva": "^9.3.22",
+   
     "next": "16.2.1",
     "next-cloudinary": "^6.17.5",
-    "quill": "^2.0.3",
+    
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-konva": "^18.2.14",
