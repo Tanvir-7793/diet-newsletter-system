@@ -14,7 +14,7 @@ interface NewsletterPreviewProps {
   fontSize: number;
   titleFontSize?: number;
   className?: string;
-  templateRef?: React.RefObject<HTMLDivElement>;
+  templateRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export function NewsletterPreview({

@@ -77,7 +77,6 @@ export function PlacementTemplate({
     setDraggingStudentId(null);
   };
 
-  const { useState } = require('react');
   const getBackgroundStyle = () => {
     const { background } = template.config;
 
