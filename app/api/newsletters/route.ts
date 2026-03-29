@@ -31,3 +31,21 @@ export async function GET() {
     return NextResponse.json({ error: 'Failed to fetch newsletters' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const { id } = await request.json();
+
+    if (!id) {
+      return NextResponse.json({ error: 'Newsletter ID is required' }, { status: 400 });
+    }
+
+    // Delete the image from Cloudinary
+    await cloudinary.uploader.destroy(id);
+
+    return NextResponse.json({ success: true, message: 'Newsletter deleted successfully' });
+  } catch (error) {
+    console.error('Cloudinary delete error:', error);
+    return NextResponse.json({ error: 'Failed to delete newsletter' }, { status: 500 });
+  }
+}

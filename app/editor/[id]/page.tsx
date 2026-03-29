@@ -3,18 +3,19 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import { newsletterTemplates, getTemplateById, getTemplateStyles, type NewsletterTemplate } from "@/lib/templates";
+import { newsletterTemplates, getTemplateById, getTemplateStyles, type NewsletterTemplate, type StudentCard } from "@/lib/templates";
 import * as htmlToImage from 'html-to-image';
 import { useTheme } from "@/hooks/use-theme";
 import { NewsletterPreview } from "@/components/newsletter/newsletter-preview";
+import { StudentCardEditor } from "@/components/newsletter/student-card-editor";
 
 export default function EditorPage() {
   const params = useParams();
   const id = params?.id as string;
   
   const [selectedTemplate, setSelectedTemplate] = useState<NewsletterTemplate>(newsletterTemplates[0]);
-  const [title, setTitle] = useState("द्यानश्री मासिक वृत्तपत्र");
-  const [content, setContent] = useState("स्वागताळांच्या महित्सा! येथे द्यानश्री अभियांत्रिकी महाविद्यालय, सातारा येथे अद्यक अपडेट.");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [titleFontSize, setTitleFontSize] = useState(27);
   const [fontSize, setFontSize] = useState(15);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -22,8 +23,10 @@ export default function EditorPage() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [students, setStudents] = useState<StudentCard[]>([]);
   const { detectMarathi, colors } = useTheme();
   const previewRef = useRef<HTMLDivElement>(null);
+  const templateRef = useRef<HTMLDivElement>(null);
 
   // Load existing newsletter if id is provided
   useEffect(() => {
@@ -60,6 +63,16 @@ export default function EditorPage() {
     detectMarathi(combinedText);
   }, [title, content]);
 
+  // Sync students with selectedTemplate for preview
+  useEffect(() => {
+    if (selectedTemplate.id === "placement-showcase") {
+      setSelectedTemplate(prev => ({
+        ...prev,
+        students: students
+      }));
+    }
+  }, [students]);
+
   const handleTemplateSelect = (templateId: string) => {
     const template = getTemplateById(templateId);
     if (template) {
@@ -87,17 +100,19 @@ export default function EditorPage() {
   };
 
   const handleDownload = async () => {
-    if (!previewRef.current) return;
-    
+    // Use templateRef for placement-showcase, otherwise use previewRef
+    const captureElement = selectedTemplate.id === "placement-showcase" ? templateRef.current : previewRef.current;
+    if (!captureElement) return;
+
     setIsDownloading(true);
-    
+
     try {
-      const dataUrl = await htmlToImage.toPng(previewRef.current, {
+      const dataUrl = await htmlToImage.toPng(captureElement, {
         quality: 1.0,
         pixelRatio: 2, // High resolution
         backgroundColor: '#ffffff',
       });
-      
+
       // Upload to Cloudinary via our API route
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -119,7 +134,7 @@ export default function EditorPage() {
       link.download = `${title.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}-newsletter.png`;
       link.href = dataUrl;
       link.click();
-      
+
     } catch (error) {
       console.error('Download failed:', error);
       alert('Download failed. Please try again.');
@@ -129,17 +144,19 @@ export default function EditorPage() {
   };
 
   const handleSaveDraft = async () => {
-    if (!previewRef.current) return;
-    
+    // Use templateRef for placement-showcase, otherwise use previewRef
+    const captureElement = selectedTemplate.id === "placement-showcase" ? templateRef.current : previewRef.current;
+    if (!captureElement) return;
+
     setIsSavingDraft(true);
-    
+
     try {
-      const dataUrl = await htmlToImage.toPng(previewRef.current, {
+      const dataUrl = await htmlToImage.toPng(captureElement, {
         quality: 1.0,
         pixelRatio: 2,
         backgroundColor: '#ffffff',
       });
-      
+
       const response = await fetch('/api/upload', {
         method: 'POST',
         headers: {
@@ -157,7 +174,7 @@ export default function EditorPage() {
       }
 
       alert('Draft saved successfully to Cloudinary!');
-      
+
     } catch (error) {
       console.error('Save draft failed:', error);
       alert('Failed to save draft. Please try again.');
@@ -237,6 +254,7 @@ export default function EditorPage() {
                       fontSize={fontSize}
                       titleFontSize={titleFontSize}
                       className="w-full"
+                      templateRef={templateRef}
                     />
                   </div>
                 </div>
@@ -258,59 +276,75 @@ export default function EditorPage() {
 
                 {/* Title Input */}
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label htmlFor="title" className={`block text-sm font-medium ${colors.text}`}>
-                      Newsletter Title
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs ${colors.muted}`}>Size: {titleFontSize}px</span>
-                      <input
-                        type="range"
-                        min="20"
-                        max="60"
-                        value={titleFontSize}
-                        onChange={(e) => setTitleFontSize(parseInt(e.target.value))}
-                        className="w-24 h-1.5 bg-blue-200 rounded-lg appearance-none cursor-pointer"
-                      />
+                  {selectedTemplate.id !== "placement-showcase" && (
+                    <div className="flex justify-between items-center mb-2">
+                      <label htmlFor="title" className={`block text-sm font-medium ${colors.text}`}>
+                        Newsletter Title
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs ${colors.muted}`}>Size: {titleFontSize}px</span>
+                        <input
+                          type="range"
+                          min="20"
+                          max="60"
+                          value={titleFontSize}
+                          onChange={(e) => setTitleFontSize(parseInt(e.target.value))}
+                          className="w-24 h-1.5 bg-blue-200 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
+                  {selectedTemplate.id === "placement-showcase" && (
+                    <label htmlFor="title" className={`block text-sm font-medium ${colors.text} mb-2`}>
+                      Company Name
+                    </label>
+                  )}
                   <input
                     id="title"
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Enter newsletter title"
+                    placeholder={selectedTemplate.id === "placement-showcase" ? "Enter company name (e.g., SEDEMAC)" : "Enter newsletter title"}
                     className={`w-full px-4 py-2 ${colors.input} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all`}
                   />
                 </div>
 
-                {/* Content Textarea */}
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label htmlFor="content" className={`block text-sm font-medium ${colors.text}`}>
-                      Content
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs ${colors.muted}`}>Size: {fontSize}px</span>
-                      <input
-                        type="range"
-                        min="12"
-                        max="24"
-                        value={fontSize}
-                        onChange={(e) => setFontSize(parseInt(e.target.value))}
-                        className="w-24 h-1.5 bg-blue-200 rounded-lg appearance-none cursor-pointer"
-                      />
+                {/* Content Textarea - Hidden for placement-showcase */}
+                {selectedTemplate.id !== "placement-showcase" && (
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label htmlFor="content" className={`block text-sm font-medium ${colors.text}`}>
+                        Content
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs ${colors.muted}`}>Size: {fontSize}px</span>
+                        <input
+                          type="range"
+                          min="12"
+                          max="24"
+                          value={fontSize}
+                          onChange={(e) => setFontSize(parseInt(e.target.value))}
+                          className="w-24 h-1.5 bg-blue-200 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
                     </div>
+                    <textarea
+                      id="content"
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      placeholder="Write your newsletter content..."
+                      rows={6}
+                      className={`w-full px-4 py-2 ${colors.input} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none`}
+                    />
                   </div>
-                  <textarea
-                    id="content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="Write your newsletter content..."
-                    rows={6}
-                    className={`w-full px-4 py-2 ${colors.input} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none`}
+                )}
+
+                {selectedTemplate.id === "placement-showcase" && (
+                  <StudentCardEditor
+                    students={students}
+                    onStudentsChange={setStudents}
                   />
-                </div>
+                )}
 
                 {/* Image Upload */}
                 <div>

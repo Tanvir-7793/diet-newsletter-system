@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import { NewsletterTemplate } from "@/lib/templates";
 import { NewspaperTemplate } from "@/components/templates/newspaper-template";
+import { PlacementTemplate } from "@/components/templates/placement-template";
 
 interface NewsletterPreviewProps {
   template: NewsletterTemplate;
@@ -13,6 +14,7 @@ interface NewsletterPreviewProps {
   fontSize: number;
   titleFontSize?: number;
   className?: string;
+  templateRef?: React.RefObject<HTMLDivElement>;
 }
 
 export function NewsletterPreview({
@@ -22,7 +24,8 @@ export function NewsletterPreview({
   imageUrl,
   fontSize,
   titleFontSize = 32,
-  className = ""
+  className = "",
+  templateRef
 }: NewsletterPreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -37,6 +40,23 @@ export function NewsletterPreview({
           bannerImage={imageUrl}
           fontSize={fontSize}
         />
+      </div>
+    );
+  }
+
+  // Use placement template for student showcase
+  if (template.id === "placement-showcase") {
+    return (
+      <div className={`max-w-2xl mx-auto ${className}`} data-preview-container>
+        <div className="shadow-2xl rounded-2xl overflow-hidden border-[1px] border-slate-200">
+          <div ref={templateRef} className="bg-white w-full p-0">
+            <PlacementTemplate
+              template={template}
+              companyName={title}
+              students={template.students || []}
+            />
+          </div>
+        </div>
       </div>
     );
   }
