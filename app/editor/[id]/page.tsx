@@ -82,19 +82,31 @@ export default function EditorPage() {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Use URL.createObjectURL() for instant preview
-      const objectUrl = URL.createObjectURL(file);
-      setUploadedImage(objectUrl);
-      setImageUrl(objectUrl);
-    }
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const src = event.target?.result as string;
+      const img = new window.Image();
+      img.onload = () => {
+        // Keep the original pixel dimensions — only compress the file size
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+        // Export as JPEG at 80% quality for a smaller footprint
+        const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+        setUploadedImage(compressedDataUrl);
+        setImageUrl(compressedDataUrl);
+      };
+      img.src = src;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleRemoveImage = () => {
-    if (uploadedImage) {
-      // Clean up object URL to prevent memory leaks
-      URL.revokeObjectURL(uploadedImage);
-    }
     setUploadedImage(null);
     setImageUrl("");
   };

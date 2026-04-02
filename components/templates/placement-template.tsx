@@ -30,8 +30,8 @@ export function PlacementTemplate({
   const isGridCellOccupied = (gridCol: number, gridRow: number, excludeId?: string) => {
     return students.some(
       s => s.position?.gridCol === gridCol &&
-           s.position?.gridRow === gridRow &&
-           s.id !== excludeId
+        s.position?.gridRow === gridRow &&
+        s.id !== excludeId
     );
   };
 
@@ -159,8 +159,14 @@ export function PlacementTemplate({
           )}
         </div>
 
-        {/* Footer - already in background image, just add transparent space */}
-        <div className="h-12 flex-shrink-0"></div>
+        {/* Footer Strip */}
+        <div className="w-full flex-shrink-0 mt-auto">
+          <img
+            src="/newsletter-fotter.jpeg"
+            alt="Newsletter footer"
+            className="w-full object-contain"
+          />
+        </div>
       </div>
     </div>
   );

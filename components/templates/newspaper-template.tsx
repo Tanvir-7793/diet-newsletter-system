@@ -19,16 +19,16 @@ export function NewspaperTemplate({
   titleFontSize = 32,
   className = ""
 }: NewspaperTemplateProps) {
-  
+
   // Format content into justified paragraphs
   const formatContent = (text: string) => {
     const paragraphs = text.split('\n\n').filter(p => p.trim() !== '');
-    
+
     return paragraphs.map((paragraph, index) => (
-      <p 
-        key={index} 
+      <p
+        key={index}
         className="mb-3 text-justify"
-        style={{ 
+        style={{
           fontSize: `${fontSize}px`,
           lineHeight: '1.8',
           letterSpacing: '0',
@@ -46,27 +46,27 @@ export function NewspaperTemplate({
       <div className="bg-[white] border-[1px] border-black shadow-lg">
         {/* Content Container with newspaper-style padding */}
         <div className="p-4">
-          
+
           {/* Top Section - Banner Image */}
           {bannerImage && (
             <div className="w-full mb-4">
               <img
                 src={bannerImage}
                 alt="Newspaper banner"
-                className="w-full h-64 object-cover border border-black"
+                className="w-full object-contain border border-black"
               />
             </div>
           )}
 
           {/* Title Section - Marathi Headline */}
           <div className="mb-4 text-center">
-            <h1 
+            <h1
               className="font-black text-black"
-              style={{ 
+              style={{
                 fontFamily: 'var(--font-martel), serif',
-                fontSize: `${titleFontSize}px`, 
-                lineHeight: '1.2', 
-                letterSpacing: '0', 
+                fontSize: `${titleFontSize}px`,
+                lineHeight: '1.2',
+                letterSpacing: '0',
                 color: '#000000'
               }}
             >
@@ -76,9 +76,9 @@ export function NewspaperTemplate({
 
           {/* Content Section - Justified Marathi Text */}
           <div className="mb-1">
-            <div 
+            <div
               className="text-black"
-              style={{ 
+              style={{
                 fontSize: `${fontSize}px`,
                 lineHeight: '1.8',
                 letterSpacing: '0',
@@ -92,7 +92,16 @@ export function NewspaperTemplate({
           </div>
 
           {/* Bottom Line */}
-          <div className="h-[0.5px] bg-black mt-3"></div>
+          <div className="h-[0.5px] bg-black mt-3 mb-3"></div>
+
+          {/* Footer Strip */}
+          <div className="w-full mt-auto">
+            <img
+              src="/newsletter-fotter.jpeg"
+              alt="Newsletter footer"
+              className="w-full object-contain"
+            />
+          </div>
         </div>
       </div>
     </div>
