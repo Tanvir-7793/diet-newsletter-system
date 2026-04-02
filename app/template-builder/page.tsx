@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { NewsletterTemplate, saveCustomTemplate, getCustomTemplates, deleteCustomTemplate } from "@/lib/templates";
 import { NewsletterPreview } from "@/components/newsletter/newsletter-preview";
-import { QuillEditor } from "@/components/newsletter/quill-editor";
+
 import { TemplateCustomizer } from "@/components/newsletter/template-customizer";
 import Link from "next/link";
 
@@ -142,11 +142,10 @@ export default function TemplateBuilderPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Success Message */}
         {saveMessage && (
-          <div className={`mb-6 p-4 rounded-lg text-center font-medium ${
-            saveMessage.includes("✅")
+          <div className={`mb-6 p-4 rounded-lg text-center font-medium ${saveMessage.includes("✅")
               ? "bg-green-100 text-green-800"
               : "bg-red-100 text-red-800"
-          }`}>
+            }`}>
             {saveMessage}
           </div>
         )}
@@ -165,11 +164,13 @@ export default function TemplateBuilderPage() {
 
             {/* Content Editor */}
             <div className="mt-6 bg-white p-4 sm:p-6 rounded-lg shadow-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Content (Quill Editor)</h3>
-              <QuillEditor
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Content</h3>
+              <textarea
                 value={quillContent}
-                onChange={setQuillContent}
-                placeholder="Write your newsletter content with formatting..."
+                onChange={(e) => setQuillContent(e.target.value)}
+                placeholder="Write your newsletter content..."
+                rows={8}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none text-gray-800"
               />
             </div>
 
