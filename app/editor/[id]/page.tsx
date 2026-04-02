@@ -12,7 +12,7 @@ import { StudentCardEditor } from "@/components/newsletter/student-card-editor";
 export default function EditorPage() {
   const params = useParams();
   const id = params?.id as string;
-  
+
   const [selectedTemplate, setSelectedTemplate] = useState<NewsletterTemplate>(newsletterTemplates[0]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -39,7 +39,7 @@ export default function EditorPage() {
           const response = await fetch('/api/newsletters');
           const data = await response.json();
           const newsletter = data.newsletters?.find((n: any) => n.id === id);
-          
+
           if (newsletter) {
             setTitle(newsletter.title);
             // Cloudinary search doesn't store full content in context by default unless we specifically added it
@@ -99,19 +99,59 @@ export default function EditorPage() {
     setImageUrl("");
   };
 
-  const handleDownload = async () => {
-    // Use templateRef for placement-showcase, otherwise use previewRef
-    const captureElement = selectedTemplate.id === "placement-showcase" ? templateRef.current : previewRef.current;
-    if (!captureElement) return;
+  const getCaptureElement = () => {
+    if (selectedTemplate.id === "placement-showcase") {
+      return templateRef.current;
+    }
 
+    // First try the explicitly marked preview container
+    const previewContainer = previewRef.current?.querySelector("[data-preview-container]") as HTMLDivElement | null;
+    if (previewContainer) return previewContainer;
+
+    // On mobile the preview is inside an overflow-x-auto scroll wrapper.
+    // We need the inner content div (first child of the scroll wrapper) so we
+    // capture the full newsletter width, not just the clipped visible area.
+    const scrollWrapper = previewRef.current?.querySelector(".overflow-x-auto") as HTMLDivElement | null;
+    if (scrollWrapper) {
+      const innerContent = scrollWrapper.firstElementChild as HTMLDivElement | null;
+      if (innerContent) return innerContent;
+    }
+
+    return previewRef.current;
+  };
+
+  const renderPreviewImage = async () => {
+    const captureElement = getCaptureElement();
+    if (!captureElement) {
+      throw new Error("Preview element not found");
+    }
+
+    // Use scrollWidth/scrollHeight to get the full content size, not just the
+    // visible clipped area (important on mobile with overflow-x-auto wrappers).
+    const width = captureElement.scrollWidth || captureElement.offsetWidth;
+    const height = captureElement.scrollHeight || captureElement.offsetHeight;
+    const pixelRatio = typeof window !== "undefined" ? Math.max(2, window.devicePixelRatio || 1) : 2;
+
+    return htmlToImage.toPng(captureElement, {
+      quality: 1.0,
+      pixelRatio,
+      backgroundColor: "#ffffff",
+      width,
+      height,
+      style: {
+        // Temporarily override any overflow/clip so html-to-image renders everything
+        overflow: "visible",
+        width: `${width}px`,
+        height: `${height}px`,
+      },
+    });
+  };
+
+  const handleDownload = async () => {
     setIsDownloading(true);
 
     try {
-      const dataUrl = await htmlToImage.toPng(captureElement, {
-        quality: 1.0,
-        pixelRatio: 2, // High resolution
-        backgroundColor: '#ffffff',
-      });
+      const dataUrl = await renderPreviewImage();
 
       // Upload to Cloudinary via our API route
       const response = await fetch('/api/upload', {
@@ -144,18 +184,10 @@ export default function EditorPage() {
   };
 
   const handleSaveDraft = async () => {
-    // Use templateRef for placement-showcase, otherwise use previewRef
-    const captureElement = selectedTemplate.id === "placement-showcase" ? templateRef.current : previewRef.current;
-    if (!captureElement) return;
-
     setIsSavingDraft(true);
 
     try {
-      const dataUrl = await htmlToImage.toPng(captureElement, {
-        quality: 1.0,
-        pixelRatio: 2,
-        backgroundColor: '#ffffff',
-      });
+      const dataUrl = await renderPreviewImage();
 
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -220,11 +252,10 @@ export default function EditorPage() {
               <button
                 key={template.id}
                 onClick={() => handleTemplateSelect(template.id)}
-                className={`flex-shrink-0 p-3 rounded-lg border-2 transition-all cursor-pointer ${
-                  selectedTemplate.id === template.id
-                    ? "border-blue-500 shadow-lg"
-                    : colors.border
-                }`}
+                className={`flex-shrink-0 p-3 rounded-lg border-2 transition-all cursor-pointer ${selectedTemplate.id === template.id
+                  ? "border-blue-500 shadow-lg"
+                  : colors.border
+                  }`}
               >
                 <div className="w-20 h-24 rounded-md flex items-center justify-center">
                   <div className={`w-full h-full rounded ${template.preview}`}></div>
@@ -235,7 +266,7 @@ export default function EditorPage() {
           </div>
         </div>
       </div>
-      
+
 
       {/* Main Content Area */}
       <div className="flex-1 max-w-7xl mx-auto w-full p-4 lg:p-6">
@@ -266,7 +297,7 @@ export default function EditorPage() {
           <div className="lg:sticky lg:top-6 h-fit">
             <div className={`${colors.card} rounded-lg shadow-lg p-6`}>
               <h3 className={`text-lg font-semibold ${colors.text} mb-6`}>Edit Newsletter</h3>
-              
+
               <div className="space-y-6">
                 {/* Template Info */}
                 <div className={`p-3 ${colors.isDark ? 'bg-blue-900' : 'bg-blue-50'} rounded-lg`}>
@@ -380,7 +411,7 @@ export default function EditorPage() {
                         )}
                       </div>
                     </label>
-                    
+
                     {/* Image Preview */}
                     {uploadedImage && (
                       <div className="relative group">
@@ -405,7 +436,7 @@ export default function EditorPage() {
 
                     {/* Action Buttons */}
                     <div className="flex gap-3 mt-6">
-                      <button 
+                      <button
                         onClick={handleSaveDraft}
                         disabled={isSavingDraft || isDownloading}
                         className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center"
