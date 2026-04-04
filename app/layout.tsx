@@ -5,6 +5,7 @@ import "./globals.css";
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import { Analytics } from "@vercel/analytics/next"
+import { AuthGuard } from "@/components/auth/AuthGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -65,10 +66,12 @@ export default function RootLayout({
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1">
-            {children}
+            <AuthGuard>
+              {children}
+            </AuthGuard>
           </main>
           <Footer />
-          <Analytics/>
+          <Analytics />
         </div>
       </body>
     </html>
