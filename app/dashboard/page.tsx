@@ -24,7 +24,7 @@ export default function DashboardPage() {
       try {
         const response = await fetch('/api/newsletters');
         const data = await response.json();
-        
+
         if (data.newsletters) {
           const formattedNewsletters = data.newsletters.map((n: any) => ({
             id: n.id,
@@ -84,10 +84,10 @@ export default function DashboardPage() {
   const getStatusBadge = (status: string) => {
     const styles = {
       published: "bg-green-100 text-green-800 border-green-200",
-      draft: "bg-yellow-100 text-yellow-800 border-yellow-200", 
+      draft: "bg-yellow-100 text-yellow-800 border-yellow-200",
       scheduled: "bg-blue-100 text-blue-800 border-blue-200"
     };
-    
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full border ${styles[status as keyof typeof styles]}`}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -106,7 +106,7 @@ export default function DashboardPage() {
                 College Newsletter System
               </h1>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <Link
                 href="/editor"
@@ -118,8 +118,8 @@ export default function DashboardPage() {
                 <span className="hidden sm:inline">Create Newsletter</span>
                 <span className="sm:hidden">Create</span>
               </Link>
-              
-             
+
+
             </div>
           </div>
         </div>
@@ -193,6 +193,7 @@ export default function DashboardPage() {
                       src={newsletter.imageUrl}
                       alt={newsletter.title}
                       fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-200"
                     />
                     <div className="absolute top-3 right-3">

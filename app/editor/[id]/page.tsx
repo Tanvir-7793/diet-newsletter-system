@@ -165,8 +165,15 @@ export default function EditorPage() {
     try {
       const dataUrl = await renderPreviewImage();
 
-      // Upload to Cloudinary via our API route
-      const response = await fetch('/api/upload', {
+      // TRIGGER DOWNLOAD IMMEDIATELY
+      const link = document.createElement('a');
+      link.download = `${title.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}-newsletter.png`;
+      link.href = dataUrl;
+      link.click();
+
+      // BACKGROUND UPLOAD (Don't let it block the user or alert on failure)
+      // This is for tracking/storage, but the primary goal (download) is already achieved.
+      fetch('/api/upload', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,20 +183,13 @@ export default function EditorPage() {
           title: title,
           type: 'download',
         }),
+      }).catch(err => {
+        console.error('Background Cloudinary upload failed:', err);
       });
 
-      if (!response.ok) {
-        throw new Error('Cloudinary upload failed');
-      }
-
-      const link = document.createElement('a');
-      link.download = `${title.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}-newsletter.png`;
-      link.href = dataUrl;
-      link.click();
-
     } catch (error) {
-      console.error('Download failed:', error);
-      alert('Download failed. Please try again.');
+      console.error('Generation failed:', error);
+      alert('Failed to generate image. Please try again.');
     } finally {
       setIsDownloading(false);
     }

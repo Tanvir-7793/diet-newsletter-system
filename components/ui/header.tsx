@@ -57,6 +57,7 @@ export function Header() {
                     src="/logo.jpeg"
                     alt="Dnyanshree Institute Logo"
                     fill
+                    sizes="40px"
                     className="object-contain rounded-full"
                   />
                 </div>
@@ -66,33 +67,31 @@ export function Header() {
                 </div>
               </Link>
             </div>
-            
+
             {/* Desktop Navigation */}
             {!pathname.includes('/login') && (
               <nav className="hidden md:flex items-center space-x-6">
                 <Link
                   href="/dashboard"
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    pathname === "/dashboard" ? "text-primary" : isDark ? "text-slate-300" : "text-muted-foreground"
-                  }`}
+                  className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/dashboard" ? "text-primary" : isDark ? "text-slate-300" : "text-muted-foreground"
+                    }`}
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/editor"
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    pathname === "/editor" ? "text-primary" : isDark ? "text-slate-300" : "text-muted-foreground"
-                  }`}
+                  className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/editor" ? "text-primary" : isDark ? "text-slate-300" : "text-muted-foreground"
+                    }`}
                 >
                   Editor
                 </Link>
               </nav>
             )}
-            
+
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center space-x-3">
-              
-              
+
+
               {user ? (
                 <>
                   <div className="flex items-center space-x-2">
@@ -101,6 +100,7 @@ export function Header() {
                         src={user.photoURL || "/logo.jpeg"}
                         alt="User Avatar"
                         fill
+                        sizes="32px"
                         className="object-contain rounded-full"
                       />
                     </div>
@@ -110,9 +110,8 @@ export function Header() {
                   </div>
                   <button
                     onClick={handleSignOut}
-                    className={`text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-lg ${
-                      isDark ? 'text-slate-300 hover:bg-slate-700/50' : 'text-muted-foreground hover:bg-slate-100/50'
-                    }`}
+                    className={`text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-lg ${isDark ? 'text-slate-300 hover:bg-slate-700/50' : 'text-muted-foreground hover:bg-slate-100/50'
+                      }`}
                   >
                     Sign Out
                   </button>
@@ -120,9 +119,8 @@ export function Header() {
               ) : (
                 <Link
                   href="/login"
-                  className={`text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-lg ${
-                    isDark ? 'text-slate-300 hover:bg-slate-700/50' : 'text-muted-foreground hover:bg-slate-100/50'
-                  }`}
+                  className={`text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-lg ${isDark ? 'text-slate-300 hover:bg-slate-700/50' : 'text-muted-foreground hover:bg-slate-100/50'
+                    }`}
                 >
                   Sign In
                 </Link>
@@ -131,15 +129,14 @@ export function Header() {
 
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center space-x-2">
-              
-              
+
+
               <button
                 onClick={toggleMobileMenu}
-                className={`p-2 rounded-lg transition-all hover:scale-105 ${
-                  isDark 
-                    ? 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50' 
-                    : 'bg-slate-100/50 text-slate-600 hover:bg-slate-200/50'
-                }`}
+                className={`p-2 rounded-lg transition-all hover:scale-105 ${isDark
+                  ? 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
+                  : 'bg-slate-100/50 text-slate-600 hover:bg-slate-200/50'
+                  }`}
                 title="Toggle menu"
               >
                 {isMobileMenuOpen ? (
@@ -167,26 +164,24 @@ export function Header() {
                   <Link
                     href="/dashboard"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      pathname === "/dashboard" 
-                        ? "bg-primary/10 text-primary" 
-                        : isDark 
-                          ? "text-slate-300 hover:bg-slate-700/50" 
-                          : "text-muted-foreground hover:bg-slate-100/50"
-                    }`}
+                    className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${pathname === "/dashboard"
+                      ? "bg-primary/10 text-primary"
+                      : isDark
+                        ? "text-slate-300 hover:bg-slate-700/50"
+                        : "text-muted-foreground hover:bg-slate-100/50"
+                      }`}
                   >
                     Dashboard
                   </Link>
                   <Link
                     href="/editor"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      pathname === "/editor" 
-                        ? "bg-primary/10 text-primary" 
-                        : isDark 
-                          ? "text-slate-300 hover:bg-slate-700/50" 
-                          : "text-muted-foreground hover:bg-slate-100/50"
-                    }`}
+                    className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${pathname === "/editor"
+                      ? "bg-primary/10 text-primary"
+                      : isDark
+                        ? "text-slate-300 hover:bg-slate-700/50"
+                        : "text-muted-foreground hover:bg-slate-100/50"
+                      }`}
                   >
                     Editor
                   </Link>
@@ -214,11 +209,10 @@ export function Header() {
                   </div>
                   <button
                     onClick={handleSignOut}
-                    className={`block w-full text-center px-4 py-3 rounded-lg text-sm font-medium transition-all hover:scale-105 ${
-                      isDark 
-                        ? 'text-slate-300 hover:bg-slate-700/50' 
-                        : 'text-muted-foreground hover:bg-slate-100/50'
-                    }`}
+                    className={`block w-full text-center px-4 py-3 rounded-lg text-sm font-medium transition-all hover:scale-105 ${isDark
+                      ? 'text-slate-300 hover:bg-slate-700/50'
+                      : 'text-muted-foreground hover:bg-slate-100/50'
+                      }`}
                   >
                     Sign Out
                   </button>

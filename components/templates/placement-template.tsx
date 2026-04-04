@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { NewsletterTemplate, StudentCard } from "@/lib/templates";
 
 interface PlacementTemplateProps {
@@ -110,8 +111,19 @@ export function PlacementTemplate({
     >
       {/* Content wrapper - overlays on top of background image */}
       <div className="flex flex-col h-full relative z-20">
+        {/* Institute Header Image */}
+        <div className="w-full p-6 relative h-22 flex-shrink-0">
+          <Image
+            src="/header-newsletter1.jpeg"
+            alt="Institute Header"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
+
         {/* Company name section - below the congratulations text */}
-        <div className="text-center px-6 py-52 flex-shrink-0">
+        <div className="text-center px-6 py-8 flex-shrink-0 mt-32">
           <p className="text-purple-900 text-base font-semibold leading-snug">
             {companyName}
           </p>

@@ -46,6 +46,16 @@ export function NewspaperTemplate({
       <div className="bg-[white] border-[1px] border-black shadow-lg">
         {/* Content Container with newspaper-style padding */}
         <div className="p-4">
+          {/* Institute Header Image */}
+          <div className="w-full mb-6 relative h-22">
+            <Image
+              src="/header-newsletter1.jpeg"
+              alt="Institute Header"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
 
           {/* Top Section - Banner Image */}
           {bannerImage && (

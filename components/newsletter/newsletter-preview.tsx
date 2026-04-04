@@ -142,6 +142,17 @@ export function NewsletterPreview({
 
           {/* Content Container with proper spacing */}
           <div className="relative h-full p-8 flex flex-col">
+            {/* Institute Header Image */}
+            <div className="w-full mb-6 relative h-22">
+              <Image
+                src="/header-newsletter1.jpeg"
+                alt="Institute Header"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+
             {/* Top Section - Image Banner */}
             {imageUrl && (
               <div className="w-full mb-6">
@@ -167,16 +178,6 @@ export function NewsletterPreview({
               >
                 {title || "Newsletter Title"}
               </h1>
-              <p
-                className="text-lg font-medium opacity-90"
-                style={{
-                  color: template.config.layout.titlePosition.color === 'text-white' ? '#e5e7eb' : '#64748b',
-                  lineHeight: '1.6', // Better readability
-                  letterSpacing: '0.01em'
-                }}
-              >
-                Dnyanshree Institute of Engineering and Technology
-              </p>
             </div>
 
             {/* Bottom Section - Content */}

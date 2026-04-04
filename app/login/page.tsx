@@ -95,6 +95,7 @@ export default function LoginPage() {
                 src={user.photoURL || "/logo.jpeg"}
                 alt="User Avatar"
                 fill
+                sizes="64px"
                 className="object-contain rounded-full"
               />
             </div>
@@ -126,6 +127,7 @@ export default function LoginPage() {
               src="/logo.jpeg"
               alt="Dnyanshree Institute Logo"
               fill
+              sizes="80px"
               className="object-contain rounded-full shadow-lg"
             />
           </div>
@@ -155,7 +157,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          
+
 
           {/* Email/Password Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -174,7 +176,7 @@ export default function LoginPage() {
                 disabled={isLoading}
               />
             </div>
-            
+
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
                 Password
@@ -235,9 +237,9 @@ export default function LoginPage() {
         <div className="mt-3 text-center">
           <p className="text-slate-600 text-sm">
             Need help?{" "}
-            <a 
-              href="https://wa.me/919860193973" 
-              target="_blank" 
+            <a
+              href="https://wa.me/919860193973"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-700 font-medium"
             >
