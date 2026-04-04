@@ -157,6 +157,15 @@ export default function LoginPage() {
             </div>
           )}
 
+          {/* Faculty Only Notice */}
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl shadow-sm">
+            <p className="text-amber-800 text-xs font-medium leading-relaxed">
+              <span className="font-bold">Notice:</span> This app is for <span className="font-bold">college faculty members only</span>.
+              If you want to use all features of this website, please contact the
+              <span className="font-bold"> Public Relations Officer (PRO) DIET Satara</span>.
+            </p>
+          </div>
+
 
 
           {/* Email/Password Form */}
