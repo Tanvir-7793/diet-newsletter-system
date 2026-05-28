@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { StudentCard } from "@/lib/templates";
 
 interface StudentCardEditorProps {
@@ -12,8 +11,6 @@ export function StudentCardEditor({
   students,
   onStudentsChange
 }: StudentCardEditorProps) {
-  const [editingId, setEditingId] = useState<string | null>(null);
-
   const handleAddStudent = () => {
     const newStudent: StudentCard = {
       id: `student-${Date.now()}`,
@@ -60,7 +57,7 @@ export function StudentCardEditor({
 
       {students.length === 0 ? (
         <div className="text-center py-6 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
-          <p className="text-sm">No students added. Click "Add Student" to begin.</p>
+          <p className="text-sm">No students added. Click &quot;Add Student&quot; to begin.</p>
         </div>
       ) : (
         <div className="space-y-3 max-h-96 overflow-y-auto">

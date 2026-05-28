@@ -1,23 +1,126 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useParams } from "next/navigation";
-import Image from "next/image";
-import { newsletterTemplates, getTemplateById, getTemplateStyles, type NewsletterTemplate, type StudentCard } from "@/lib/templates";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { newsletterTemplates, getTemplateById, type NewsletterTemplate, type StudentCard } from "@/lib/templates";
 import * as htmlToImage from 'html-to-image';
 import { useTheme } from "@/hooks/use-theme";
 import { NewsletterPreview } from "@/components/newsletter/newsletter-preview";
 import { StudentCardEditor } from "@/components/newsletter/student-card-editor";
+import Link from "next/link";
+
+interface StoredNewsletter {
+  id: string;
+  title: string;
+  preview?: string;
+  url: string;
+}
+
+function TemplateSelectorPreview({ template }: { template: NewsletterTemplate }) {
+  if (template.id === "new-template") {
+    return (
+      <div className="h-full w-full rounded-md border border-slate-300 bg-[#eef0f4] p-1 shadow-sm">
+        <div className="relative h-full overflow-hidden rounded bg-white">
+          <div className="absolute left-0 top-0 h-5 w-5 rounded-br-[16px] bg-[#4527a0]" />
+          <div className="absolute right-0 top-0 h-5 w-5 rounded-bl-[16px] bg-[#8e24aa]" />
+          <div className="px-2 pt-2">
+            <div className="mx-auto h-1 w-8 rounded bg-slate-800" />
+            <div className="mx-auto mt-1 h-0.5 w-10 rounded bg-slate-400" />
+            <div className="mt-2 rounded bg-slate-100 px-1.5 py-1">
+              <div className="h-1 w-3/4 rounded bg-slate-700" />
+              <div className="mt-1 h-1 w-full rounded bg-slate-300" />
+              <div className="mt-0.5 h-1 w-5/6 rounded bg-slate-300" />
+              <div className="mt-0.5 h-1 w-full rounded bg-slate-300" />
+            </div>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 h-2 bg-[#4527a0]" />
+          <div className="absolute bottom-2 left-1/2 h-2.5 w-10 -translate-x-1/2 rounded-t-full bg-[#f9c835]" />
+        </div>
+      </div>
+    );
+  }
+
+  if (template.id === "newspaper-editorial") {
+    return (
+      <div className="h-full w-full rounded-md border border-stone-400 bg-[#f8f4eb] p-1 text-stone-900 shadow-sm">
+        <div className="text-center text-[4px] font-bold uppercase tracking-[0.18em] text-stone-900">
+          Times
+        </div>
+        <div className="mt-1 h-px bg-[#b4372f]" />
+        <div className="mt-1 space-y-1">
+          <div className="flex items-center gap-1">
+            <div className="h-1 w-5 rounded bg-stone-800" />
+            <div className="h-1 w-1 rounded-full bg-[#c64b3f]" />
+            <div className="h-1 w-3 rounded bg-stone-500" />
+          </div>
+          <div className="space-y-0.5">
+            <div className="h-1.5 w-full rounded bg-stone-900" />
+            <div className="h-1.5 w-4/5 rounded bg-stone-700" />
+          </div>
+          <div className="grid grid-cols-[0.8fr_1.65fr_0.75fr] gap-1">
+            <div className="space-y-0.5">
+              <div className="h-4 rounded bg-stone-200" />
+              <div className="h-1 w-full rounded bg-stone-400" />
+              <div className="h-1 w-4/5 rounded bg-stone-300" />
+              <div className="h-1 w-full rounded bg-stone-300" />
+            </div>
+            <div className="space-y-0.5">
+              <div className="h-8 rounded bg-stone-300" />
+              <div className="h-1 w-full rounded bg-stone-400" />
+              <div className="h-1 w-3/4 rounded bg-stone-300" />
+            </div>
+            <div className="space-y-0.5">
+              <div className="h-2.5 rounded bg-stone-200" />
+              <div className="h-1 w-full rounded bg-stone-300" />
+              <div className="h-1 w-5/6 rounded bg-stone-300" />
+              <div className="h-1 w-4/6 rounded bg-stone-300" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (template.id === "newspaper-marathi") {
+    return (
+      <div className="h-full w-full rounded-md border-2 border-black bg-white p-1 text-black">
+        <div className="text-center text-[4px] font-bold uppercase tracking-[0.18em]">News</div>
+        <div className="mt-1 space-y-0.5">
+          <div className="h-1.5 w-full rounded bg-black" />
+          <div className="h-1.5 w-4/5 rounded bg-zinc-700" />
+          <div className="mt-1 grid grid-cols-2 gap-1">
+            <div className="space-y-0.5">
+              <div className="h-1 w-full rounded bg-zinc-400" />
+              <div className="h-1 w-5/6 rounded bg-zinc-300" />
+              <div className="h-1 w-full rounded bg-zinc-300" />
+            </div>
+            <div className="space-y-0.5">
+              <div className="h-4 rounded bg-zinc-200" />
+              <div className="h-1 w-full rounded bg-zinc-300" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <div className={`w-full h-full rounded ${template.preview}`}></div>;
+}
 
 export default function EditorPage() {
   const params = useParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const id = params?.id as string;
+  const templateParam = searchParams.get("template");
 
   const [selectedTemplate, setSelectedTemplate] = useState<NewsletterTemplate>(newsletterTemplates[0]);
   const [title, setTitle] = useState("");
+  const [date, setDate] = useState("३ मे २०२६");
   const [content, setContent] = useState("");
   const [titleFontSize, setTitleFontSize] = useState(27);
   const [fontSize, setFontSize] = useState(15);
+  const [newTemplateImageScale, setNewTemplateImageScale] = useState(100);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState("");
   const [isDownloading, setIsDownloading] = useState(false);
@@ -27,6 +130,31 @@ export default function EditorPage() {
   const { detectMarathi, colors } = useTheme();
   const previewRef = useRef<HTMLDivElement>(null);
   const templateRef = useRef<HTMLDivElement>(null);
+  const isNewTemplate = selectedTemplate.id === "new-template";
+  const isPlacementTemplate = selectedTemplate.id === "placement-showcase";
+  const supportsDateField = selectedTemplate.id.startsWith("newspaper");
+  const showsContentField = !isPlacementTemplate && !isNewTemplate;
+  const showsTitleSizeField = !isPlacementTemplate;
+  const titleSizeMin = isNewTemplate ? 12 : 20;
+  const titleSizeMax = isNewTemplate ? 76 : 60;
+
+  useEffect(() => {
+    if (id !== "new" || !templateParam) {
+      return;
+    }
+
+    const template = getTemplateById(templateParam);
+
+    if (!template || template.editorPath) {
+      return;
+    }
+
+    setSelectedTemplate(template);
+    if (template.id === "new-template") {
+      setTitleFontSize(33);
+      setNewTemplateImageScale(100);
+    }
+  }, [id, templateParam]);
 
   // Load existing newsletter if id is provided
   useEffect(() => {
@@ -38,7 +166,8 @@ export default function EditorPage() {
           // For now, we'll fetch all and find the one with this ID
           const response = await fetch('/api/newsletters');
           const data = await response.json();
-          const newsletter = data.newsletters?.find((n: any) => n.id === id);
+          const newsletters = (data.newsletters ?? []) as StoredNewsletter[];
+          const newsletter = newsletters.find((item) => item.id === id);
 
           if (newsletter) {
             setTitle(newsletter.title);
@@ -59,9 +188,9 @@ export default function EditorPage() {
 
   // Auto-detect Marathi text
   useEffect(() => {
-    const combinedText = `${title} ${content}`;
+    const combinedText = isNewTemplate ? title : `${title} ${content}`;
     detectMarathi(combinedText);
-  }, [title, content]);
+  }, [title, content, detectMarathi, isNewTemplate]);
 
   // Sync students with selectedTemplate for preview
   useEffect(() => {
@@ -71,12 +200,21 @@ export default function EditorPage() {
         students: students
       }));
     }
-  }, [students]);
+  }, [students, selectedTemplate.id]);
 
   const handleTemplateSelect = (templateId: string) => {
     const template = getTemplateById(templateId);
     if (template) {
+      if (template.editorPath) {
+        router.push(template.editorPath);
+        return;
+      }
+
       setSelectedTemplate(template);
+      if (template.id === "new-template") {
+        setTitleFontSize(33);
+        setNewTemplateImageScale(100);
+      }
     }
   };
 
@@ -258,7 +396,10 @@ export default function EditorPage() {
       {/* Template Selector */}
       <div className={`${colors.card} border-b ${colors.border} p-4`}>
         <div className="max-w-7xl mx-auto">
-          <h2 className={`text-sm font-medium ${colors.muted} mb-3`}>Choose Template</h2>
+          <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <h2 className={`text-sm font-medium ${colors.muted}`}>Choose Template</h2>
+            <p className={`text-xs ${colors.muted}`}>Templates with structured editors open on their own editing page.</p>
+          </div>
           <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
             {newsletterTemplates.map((template) => (
               <button
@@ -270,9 +411,14 @@ export default function EditorPage() {
                   }`}
               >
                 <div className="w-20 h-24 rounded-md flex items-center justify-center">
-                  <div className={`w-full h-full rounded ${template.preview}`}></div>
+                  <TemplateSelectorPreview template={template} />
                 </div>
                 <p className={`text-xs mt-2 font-medium text-center ${colors.text}`}>{template.name}</p>
+                {template.editorPath ? (
+                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-600">
+                    Open editor
+                  </p>
+                ) : null}
               </button>
             ))}
           </div>
@@ -292,8 +438,10 @@ export default function EditorPage() {
                     <NewsletterPreview
                       template={selectedTemplate}
                       title={title}
+                      date={date}
                       content={content}
                       imageUrl={imageUrl}
+                      imageScale={newTemplateImageScale}
                       fontSize={fontSize}
                       titleFontSize={titleFontSize}
                       className="w-full"
@@ -317,27 +465,44 @@ export default function EditorPage() {
                   <p className={`${colors.isDark ? 'text-blue-200' : 'text-blue-700'} text-xs mt-1`}>{selectedTemplate.description}</p>
                 </div>
 
+                {selectedTemplate.editorPath ? (
+                  <div className={`rounded-lg border p-4 ${colors.border} ${colors.isDark ? 'bg-slate-900' : 'bg-white'}`}>
+                    <h4 className={`text-sm font-semibold ${colors.text}`}>Dedicated Newspaper Editor</h4>
+                    <p className={`mt-2 text-sm ${colors.muted}`}>
+                      This template uses its own structured editorial editor with separate fields for masthead, headline, sidebar, quote block, image caption, and footer.
+                    </p>
+                    <Link
+                      href={selectedTemplate.editorPath}
+                      className="mt-4 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                    >
+                      Open {selectedTemplate.name}
+                    </Link>
+                  </div>
+                ) : null}
+
                 {/* Title Input */}
                 <div>
-                  {selectedTemplate.id !== "placement-showcase" && (
+                  {!isPlacementTemplate && (
                     <div className="flex justify-between items-center mb-2">
                       <label htmlFor="title" className={`block text-sm font-medium ${colors.text}`}>
-                        Newsletter Title
+                        {isNewTemplate ? "Marathi Title" : "Newsletter Title"}
                       </label>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs ${colors.muted}`}>Size: {titleFontSize}px</span>
-                        <input
-                          type="range"
-                          min="20"
-                          max="60"
-                          value={titleFontSize}
-                          onChange={(e) => setTitleFontSize(parseInt(e.target.value))}
-                          className="w-24 h-1.5 bg-blue-200 rounded-lg appearance-none cursor-pointer"
-                        />
-                      </div>
+                      {showsTitleSizeField ? (
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs ${colors.muted}`}>Size: {titleFontSize}px</span>
+                          <input
+                            type="range"
+                            min={titleSizeMin}
+                            max={titleSizeMax}
+                            value={titleFontSize}
+                            onChange={(e) => setTitleFontSize(parseInt(e.target.value))}
+                            className="w-24 h-1.5 bg-blue-200 rounded-lg appearance-none cursor-pointer"
+                          />
+                        </div>
+                      ) : null}
                     </div>
                   )}
-                  {selectedTemplate.id === "placement-showcase" && (
+                  {isPlacementTemplate && (
                     <label htmlFor="title" className={`block text-sm font-medium ${colors.text} mb-2`}>
                       Company Name
                     </label>
@@ -347,13 +512,36 @@ export default function EditorPage() {
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder={selectedTemplate.id === "placement-showcase" ? "Enter company name (e.g., SEDEMAC)" : "Enter newsletter title"}
+                    placeholder={
+                      isPlacementTemplate
+                        ? "Enter company name (e.g., SEDEMAC)"
+                        : isNewTemplate
+                          ? "मराठी शीर्षक लिहा"
+                          : "Enter newsletter title"
+                    }
                     className={`w-full px-4 py-2 ${colors.input} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all`}
                   />
                 </div>
 
+                {/* Date Input - Only for newspaper-style templates */}
+                {supportsDateField && (
+                  <div>
+                    <label htmlFor="date" className={`block text-sm font-medium ${colors.text} mb-2`}>
+                      Date
+                    </label>
+                    <input
+                      id="date"
+                      type="text"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      placeholder="e.g. ३ मे २०२६"
+                      className={`w-full px-4 py-2 ${colors.input} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all`}
+                    />
+                  </div>
+                )}
+
                 {/* Content Textarea - Hidden for placement-showcase */}
-                {selectedTemplate.id !== "placement-showcase" && (
+                {showsContentField && (
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <label htmlFor="content" className={`block text-sm font-medium ${colors.text}`}>
@@ -382,7 +570,7 @@ export default function EditorPage() {
                   </div>
                 )}
 
-                {selectedTemplate.id === "placement-showcase" && (
+                {isPlacementTemplate && (
                   <StudentCardEditor
                     students={students}
                     onStudentsChange={setStudents}
@@ -392,9 +580,25 @@ export default function EditorPage() {
                 {/* Image Upload */}
                 <div>
                   <label htmlFor="image" className={`block text-sm font-medium ${colors.text} mb-2`}>
-                    Newsletter Image
+                    {isNewTemplate ? "Main Image" : "Newsletter Image"}
                   </label>
                   <div className="space-y-2">
+                    {isNewTemplate ? (
+                      <div>
+                        <div className="mb-2 flex items-center justify-between">
+                          <span className={`text-xs font-medium ${colors.text}`}>Main image size</span>
+                          <span className={`text-xs ${colors.muted}`}>{newTemplateImageScale}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="78"
+                          max="100"
+                          value={newTemplateImageScale}
+                          onChange={(e) => setNewTemplateImageScale(parseInt(e.target.value))}
+                          className="w-full h-1.5 bg-blue-200 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+                    ) : null}
                     <label className={`flex items-center justify-center w-full px-4 py-6 border-2 border-dashed ${colors.border} rounded-lg cursor-pointer hover:border-blue-500 ${colors.isDark ? 'hover:bg-blue-900' : 'hover:bg-blue-50'} transition-all duration-200`}>
                       <input
                         id="image"

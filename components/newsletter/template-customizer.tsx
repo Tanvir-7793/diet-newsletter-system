@@ -12,6 +12,9 @@ interface TemplateCustomizerProps {
   onConfigChange: (config: NewsletterTemplate["config"]) => void;
 }
 
+type TitlePosition = NewsletterTemplate["config"]["layout"]["titlePosition"];
+type ContentPosition = NewsletterTemplate["config"]["layout"]["contentPosition"];
+
 export function TemplateCustomizer({
   templateName,
   onTemplateNameChange,
@@ -27,7 +30,7 @@ export function TemplateCustomizer({
     });
   };
 
-  const updateTitlePosition = (key: string, value: any) => {
+  const updateTitlePosition = <K extends keyof TitlePosition>(key: K, value: TitlePosition[K]) => {
     onConfigChange({
       ...config,
       layout: {
@@ -37,7 +40,7 @@ export function TemplateCustomizer({
     });
   };
 
-  const updateContentPosition = (key: string, value: any) => {
+  const updateContentPosition = <K extends keyof ContentPosition>(key: K, value: ContentPosition[K]) => {
     onConfigChange({
       ...config,
       layout: {
@@ -168,9 +171,9 @@ export function TemplateCustomizer({
             </label>
             <input
               type="range"
-              min="20"
-              max="60"
-              value={parseInt(config.layout.titlePosition.fontSize) || 32}
+              min="12"
+              max="76"
+              value={parseInt(config.layout.titlePosition.fontSize.replace("text-", "")) || 32}
               onChange={(e) => updateTitlePosition("fontSize", `text-${e.target.value}`)}
               className="w-full"
             />
@@ -201,7 +204,7 @@ export function TemplateCustomizer({
               {["left", "center", "right"].map((align) => (
                 <button
                   key={align}
-                  onClick={() => updateTitlePosition("textAlign", align)}
+                  onClick={() => updateTitlePosition("textAlign", align as TitlePosition["textAlign"])}
                   className={`px-4 py-2 text-sm rounded border-2 font-medium ${
                     config.layout.titlePosition.textAlign === align
                       ? "border-blue-500 bg-blue-50"
@@ -264,7 +267,7 @@ export function TemplateCustomizer({
               {["left", "center", "right", "justify"].map((align) => (
                 <button
                   key={align}
-                  onClick={() => updateContentPosition("textAlign", align)}
+                  onClick={() => updateContentPosition("textAlign", align as ContentPosition["textAlign"])}
                   className={`px-4 py-2 text-sm rounded border-2 font-medium ${
                     config.layout.contentPosition.textAlign === align
                       ? "border-blue-500 bg-blue-50"

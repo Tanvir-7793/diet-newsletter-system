@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { signInWithGoogle, signInWithEmail, signUpWithEmail, logout, onAuthChange, type AuthUser } from "@/lib/auth";
 import { useRouter } from "next/navigation";
@@ -62,9 +61,9 @@ export default function LoginPage() {
         await signInWithEmail(email, password);
       }
       // Navigation will be handled by the useEffect above
-    } catch (error: any) {
+    } catch (error) {
       console.error('Email auth error:', error);
-      setError(error.message || "Authentication failed. Please try again.");
+      setError(error instanceof Error ? error.message : "Authentication failed. Please try again.");
     } finally {
       setIsLoading(false);
     }

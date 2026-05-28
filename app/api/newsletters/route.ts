@@ -1,6 +1,18 @@
 import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 
+interface CloudinaryNewsletterResource {
+  public_id: string;
+  secure_url: string;
+  created_at: string;
+  context?: {
+    custom?: {
+      title?: string;
+      type?: string;
+    };
+  };
+}
+
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -17,7 +29,7 @@ export async function GET() {
       .sort_by('created_at', 'desc')
       .execute();
 
-    const newsletters = result.resources.map((resource: any) => ({
+    const newsletters = (result.resources as CloudinaryNewsletterResource[]).map((resource) => ({
       id: resource.public_id,
       url: resource.secure_url,
       title: resource.context?.custom?.title || 'Untitled Newsletter',

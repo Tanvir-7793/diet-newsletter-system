@@ -1,16 +1,23 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef } from "react";
 import Image from "next/image";
 import { NewsletterTemplate } from "@/lib/templates";
 import { NewspaperTemplate } from "@/components/templates/newspaper-template";
+import { NewTemplate } from "@/components/templates/NewTemplate";
+import {
+  EditorialNewspaperTemplate,
+  buildEditorialBlocksFromStory,
+} from "@/components/templates/EditorialNewspaperTemplate";
 import { PlacementTemplate } from "@/components/templates/placement-template";
 
 interface NewsletterPreviewProps {
   template: NewsletterTemplate;
   title: string;
   content: string;
+  date?: string;
   imageUrl?: string;
+  imageScale?: number;
   fontSize: number;
   titleFontSize?: number;
   className?: string;
@@ -21,7 +28,9 @@ export function NewsletterPreview({
   template,
   title,
   content,
+  date,
   imageUrl,
+  imageScale,
   fontSize,
   titleFontSize = 32,
   className = "",
@@ -37,8 +46,39 @@ export function NewsletterPreview({
           title={title}
           titleFontSize={titleFontSize}
           content={content}
+          date={date}
           bannerImage={imageUrl}
           fontSize={fontSize}
+        />
+      </div>
+    );
+  }
+
+  if (template.id === "newspaper-editorial") {
+    const editorialBlocks = buildEditorialBlocksFromStory({
+      title,
+      content,
+      date,
+    });
+
+    return (
+      <div className={className}>
+        <EditorialNewspaperTemplate
+          blocks={editorialBlocks}
+          featuredImage={imageUrl}
+        />
+      </div>
+    );
+  }
+
+  if (template.id === "new-template") {
+    return (
+      <div className={className}>
+        <NewTemplate
+          title={title}
+          imageScale={imageScale}
+          titleFontSize={titleFontSize}
+          bannerImage={imageUrl}
         />
       </div>
     );
@@ -149,7 +189,7 @@ export function NewsletterPreview({
                 alt="Institute Header"
                 fill
                 className="object-contain"
-                priority
+                preload
               />
             </div>
 

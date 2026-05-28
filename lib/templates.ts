@@ -14,6 +14,7 @@ export interface NewsletterTemplate {
   name: string;
   description: string;
   preview: string;
+  editorPath?: string;
   students?: StudentCard[]; // Optional for student showcase templates
   config: {
     background: {
@@ -62,6 +63,7 @@ export const newsletterTemplates: NewsletterTemplate[] = [
     name: "Newspaper Marathi",
     description: "Traditional newspaper-style layout for Marathi content",
     preview: "bg-white border-2 border-black",
+    editorPath: "/editor",
     config: {
       background: {
         type: "color",
@@ -99,31 +101,73 @@ export const newsletterTemplates: NewsletterTemplate[] = [
     }
   },
   {
-    id: "coming-soon",
-    name: "More Templates",
-    description: "Coming Soon...",
-    preview: "bg-gradient-to-br from-gray-200 to-gray-300",
+    id: "newspaper-editorial",
+    name: "Editorial Broadsheet",
+    description: "Front-page newspaper layout inspired by modern campus coverage",
+    preview: "bg-[#f6f0e6] border border-stone-500 shadow-sm",
+    editorPath: "/editorial-newspaper-demo",
     config: {
       background: {
         type: "color",
-        value: "#e5e7eb"
+        value: "#f6f0e6"
       },
       layout: {
         titlePosition: {
-          x: "center-x",
-          y: "center",
-          textAlign: "center",
-          fontSize: "text-2xl",
-          fontWeight: "font-medium",
-          color: "text-gray-500"
+          x: "left-6",
+          y: "top-16",
+          textAlign: "left",
+          fontSize: "text-5xl",
+          fontWeight: "font-bold",
+          color: "text-black"
         },
         contentPosition: {
-          x: "center-x",
-          y: "center",
-          textAlign: "center",
+          x: "left-6",
+          y: "top-32",
+          textAlign: "justify",
           fontSize: "text-base",
           lineHeight: "leading-relaxed",
-          color: "text-gray-400"
+          color: "text-black"
+        },
+        logoPosition: {
+          x: "center-x",
+          y: "top-8",
+          size: "w-16 h-16"
+        }
+      },
+      footer: {
+        position: "bottom-right",
+        fontSize: "text-xs",
+        color: "text-black",
+        opacity: 100
+      }
+    }
+  },
+  {
+    id: "new-template",
+    name: "NewTemplate",
+    description: "Official Dnyanshree letterhead with A4 portrait branding and a formal content area",
+    preview: "bg-[#e9ebf0] border border-slate-300",
+    config: {
+      background: {
+        type: "color",
+        value: "#ffffff"
+      },
+      layout: {
+        titlePosition: {
+          x: "left-10",
+          y: "top-24",
+          textAlign: "center",
+          fontSize: "text-4xl",
+          fontWeight: "font-bold",
+          color: "text-slate-900"
+        },
+        contentPosition: {
+          x: "left-10",
+          y: "top-40",
+          textAlign: "justify",
+          fontSize: "text-base",
+          lineHeight: "leading-relaxed",
+          color: "text-slate-700"
         },
         logoPosition: {
           x: "center-x",
@@ -134,8 +178,8 @@ export const newsletterTemplates: NewsletterTemplate[] = [
       footer: {
         position: "bottom-center",
         fontSize: "text-xs",
-        color: "text-gray-400",
-        opacity: 50
+        color: "text-[#4a148c]",
+        opacity: 100
       }
     }
   }

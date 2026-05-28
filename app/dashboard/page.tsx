@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { getCustomTemplates, newsletterTemplates, type NewsletterTemplate } from "@/lib/templates";
 
 interface Newsletter {
   id: string;
@@ -13,8 +14,17 @@ interface Newsletter {
   imageUrl: string;
 }
 
+interface ApiNewsletter {
+  id: string;
+  title: string;
+  type: "download" | "draft" | "scheduled";
+  createdAt: string;
+  url: string;
+}
+
 export default function DashboardPage() {
   const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
+  const [templates, setTemplates] = useState<NewsletterTemplate[]>(newsletterTemplates);
   const [isLoading, setIsLoading] = useState(true);
   const [deleteConfirmation, setDeleteConfirmation] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -26,7 +36,7 @@ export default function DashboardPage() {
         const data = await response.json();
 
         if (data.newsletters) {
-          const formattedNewsletters = data.newsletters.map((n: any) => ({
+          const formattedNewsletters: Newsletter[] = (data.newsletters as ApiNewsletter[]).map((n) => ({
             id: n.id,
             title: n.title,
             date: n.createdAt,
@@ -44,6 +54,15 @@ export default function DashboardPage() {
     }
 
     fetchNewsletters();
+  }, []);
+
+  useEffect(() => {
+    const storedTemplates = getCustomTemplates();
+    const mergedTemplates = [...newsletterTemplates, ...storedTemplates].filter(
+      (template, index, list) => list.findIndex((item) => item.id === template.id) === index
+    );
+
+    setTemplates(mergedTemplates);
   }, []);
 
   const handleDownload = (imageUrl: string, title: string) => {
@@ -95,6 +114,30 @@ export default function DashboardPage() {
     );
   };
 
+  const getTemplateActionHref = (template: NewsletterTemplate) => {
+    if (template.editorPath) {
+      return template.editorPath;
+    }
+
+    if (template.id.startsWith("custom-")) {
+      return "/template-builder";
+    }
+
+    return `/editor/new?template=${template.id}`;
+  };
+
+  const getTemplateActionLabel = (template: NewsletterTemplate) => {
+    if (template.editorPath) {
+      return "Open template";
+    }
+
+    if (template.id.startsWith("custom-")) {
+      return "Edit in builder";
+    }
+
+    return "Use template";
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -127,6 +170,69 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section className="mb-10">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium uppercase tracking-[0.22em] text-slate-500">Template library</p>
+              <h2 className="mt-1 text-2xl font-bold text-slate-900">Stored newsletter templates</h2>
+            </div>
+            <p className="text-sm text-slate-500">{templates.length} template{templates.length === 1 ? "" : "s"} available</p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {templates.map((template) => {
+              const actionHref = getTemplateActionHref(template);
+              const actionLabel = getTemplateActionLabel(template);
+
+              return (
+                <article
+                  key={template.id}
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <div className={`aspect-4/3 ${template.preview} p-4`}>
+                    <div className="flex h-full flex-col justify-between rounded-xl border border-black/5 bg-white/40 p-4 backdrop-blur-[1px]">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-700 shadow-sm">
+                          {template.id.startsWith("custom-") ? "Custom" : "Built in"}
+                        </span>
+                        {template.editorPath ? (
+                          <span className="rounded-full bg-slate-900 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white shadow-sm">
+                            Ready to use
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-bold text-slate-950">{template.name}</h3>
+                        <p className="max-w-sm text-sm leading-6 text-slate-700">{template.description}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-5">
+                    <div className="flex flex-wrap gap-2">
+                      <Link
+                        href={actionHref}
+                        className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700"
+                      >
+                        {actionLabel}
+                      </Link>
+                      {template.id === "newspaper-editorial" ? (
+                        <Link
+                          href="/editorial-newspaper-demo"
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50"
+                        >
+                          View demo
+                        </Link>
+                      ) : null}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>

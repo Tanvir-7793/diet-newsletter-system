@@ -1,13 +1,12 @@
 "use client";
 
-import Image from "next/image";
-
 interface NewspaperTemplateProps {
   title: string;
   content: string;
   bannerImage?: string;
   fontSize: number;
   titleFontSize?: number;
+  date?: string;
   className?: string;
 }
 
@@ -17,6 +16,7 @@ export function NewspaperTemplate({
   bannerImage,
   fontSize,
   titleFontSize = 32,
+  date,
   className = ""
 }: NewspaperTemplateProps) {
 
@@ -27,7 +27,7 @@ export function NewspaperTemplate({
     return paragraphs.map((paragraph, index) => (
       <p
         key={index}
-        className="mb-3 text-justify"
+        className={`mb-3 text-justify ${index === 0 ? 'indent-6 md:indent-7' : ''}`}
         style={{
           fontSize: `${fontSize}px`,
           lineHeight: '1.8',
@@ -43,17 +43,15 @@ export function NewspaperTemplate({
   return (
     <div className={`max-w-2xl mx-auto ${className}`} data-preview-container>
       {/* Newspaper Container */}
-      <div className="bg-[white] border-[1px] border-black shadow-lg">
+      <div className="bg-[#f9f7f2] border border-black shadow-lg">
         {/* Content Container with newspaper-style padding */}
         <div className="p-4">
-          {/* Institute Header Image */}
-          <div className="w-full mb-6 relative h-22">
-            <Image
-              src="/header-newsletter1.jpeg"
-              alt="Institute Header"
-              fill
-              className="object-contain"
-              priority
+          {/* Institute Header Logo */}
+          <div className="w-full mb-3 rounded-t-xs border border-stone-200 bg-white px-3 py-2">
+            <img
+              src="/image.png"
+              alt="ज्ञानश्री news logo"
+              className="mx-auto h-auto max-h-24 w-full object-contain sm:max-h-24"
             />
           </div>
 
@@ -87,7 +85,7 @@ export function NewspaperTemplate({
           {/* Content Section - Justified Marathi Text */}
           <div className="mb-1">
             <div
-              className="text-black"
+              className="text-black mb-1"
               style={{
                 fontSize: `${fontSize}px`,
                 lineHeight: '1.8',
@@ -98,6 +96,19 @@ export function NewspaperTemplate({
               }}
             >
               {formatContent(content || "वृत्तपत्रातील मजकूर येथे दिसेल. हे एक नमुना मजकूर आहे. यात अनेक वाक्ये आणि अनुच्छेद असतील. मराठी भाषेतील लेखन योग्यरित्या प्रदर्शित केले जाईल. वृत्तपत्राच्या शैलीत हे मजकूर लिहिले जाईल.")}
+            </div>
+
+            {/* Date Field at Right Bottom */}
+            <div className="flex justify-end w-full pr-1 opacity-90">
+              <span
+                className="font-semibold text-gray-800"
+                style={{
+                  fontFamily: '"Eczar", "Noto Sans Devanagari", serif',
+                  fontSize: `${Math.max(14, fontSize - 1)}px`
+                }}
+              >
+                {date ? `- ${date}` : "- ३ मे २०२६"}
+              </span>
             </div>
           </div>
 
